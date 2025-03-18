@@ -14,10 +14,71 @@ document.addEventListener('DOMContentLoaded', function() {
     const statusMessage = document.getElementById('status-message');
     const adminPassword = document.getElementById('admin-password');
     
-    // Carica lo stato corrente
+    // Carica lo stato corrente dal server
     function loadCurrentStatus() {
+        // Usa fetch per ottenere i dati dal server
+        fetch('status-data.json?nocache=' + new Date().getTime())
+            .then(response => response.json())
+            .then(data => {
+                // Aggiorna l'indicatore di stato
+                if (statusIndicator) {
+                    statusIndicator.className = 'status-indicator ' + data.currentStatus.status;
+                }
+                
+                // Aggiorna il testo dello stato
+                if (statusText) {
+                    switch(data.currentStatus.status) {
+                        case 'online':
+                            statusText.textContent = 'Online';
+                            break;
+                        case 'maintenance':
+                            statusText.textContent = 'In Manutenzione';
+                            break;
+                        case 'partial':
+                            statusText.textContent = 'Parzialmente Operativo';
+                            break;
+                        case 'offline':
+                            statusText.textContent = 'Offline';
+                            break;
+                    }
+                }
+                
+                // Aggiorna il messaggio di stato
+                if (statusDescription) {
+                    statusDescription.textContent = data.currentStatus.message;
+                }
+                
+                // Aggiorna l'ultimo aggiornamento
+                if (lastUpdate) {
+                    lastUpdate.textContent = data.currentStatus.lastUpdate || 'Oggi, 15:30';
+                }
+                
+                // Aggiorna il conteggio delle offerte
+                if (offersToday) {
+                    offersToday.textContent = data.stats.offersToday;
+                }
+                
+                // Aggiorna l'uptime
+                if (uptime) {
+                    uptime.textContent = data.stats.uptime;
+                }
+                
+                // Carica la cronologia
+                if (historyList) {
+                    loadStatusHistory(data.history);
+                }
+            })
+            .catch(error => {
+                console.error('Errore nel caricamento dei dati:', error);
+                // Fallback ai dati locali in caso di errore
+                loadFromLocalStorage();
+            });
+    }
+    
+    // Fallback ai dati locali
+    function loadFromLocalStorage() {
         const savedStatus = localStorage.getItem('offerbot_status');
-        if (savedStatus) {
+        if (savedStatus && statusIndicator && statusText && statusDescription) {
             const currentStatus = JSON.parse(savedStatus);
             
             // Aggiorna l'indicatore di stato
@@ -41,35 +102,20 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Aggiorna il messaggio di stato
             statusDescription.textContent = currentStatus.message;
-            
-            // Aggiorna l'ultimo aggiornamento
-            lastUpdate.textContent = currentStatus.lastUpdate || 'Oggi, 15:30';
         }
         
-        // Carica il conteggio delle offerte
-        const savedCount = localStorage.getItem('offerbot_offers_count') || '0';
-        if (offersToday) {
-            offersToday.textContent = savedCount;
+        // Carica la cronologia dal localStorage
+        const savedHistory = localStorage.getItem('offerbot_status_history');
+        if (savedHistory && historyList) {
+            loadStatusHistory(JSON.parse(savedHistory));
         }
-        
-        // Carica l'uptime
-        const savedUptime = localStorage.getItem('offerbot_uptime') || '99.8%';
-        if (uptime) {
-            uptime.textContent = savedUptime;
-        }
-        
-        // Carica la cronologia
-        loadStatusHistory();
     }
     
     // Carica la cronologia degli stati
-    function loadStatusHistory() {
+    function loadStatusHistory(history) {
         if (!historyList) return;
         
-        const savedHistory = localStorage.getItem('offerbot_status_history');
-        if (savedHistory) {
-            const history = JSON.parse(savedHistory);
-            
+        if (history && history.length > 0) {
             // Svuota la lista della cronologia
             historyList.innerHTML = '';
             
@@ -111,8 +157,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             ];
             
-            localStorage.setItem('offerbot_status_history', JSON.stringify(defaultHistory));
-            loadStatusHistory();
+            historyList.innerHTML = '';
+            defaultHistory.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                historyItem.innerHTML = `
+                    <div class="history-status ${item.status}"></div>
+                    <div class="history-content">
+                        <div class="history-header">
+                            <div class="history-title">${getStatusText(item.status)}</div>
+                            <div class="history-date">${item.date}</div>
+                        </div>
+                        <div class="history-message">${item.message}</div>
+                    </div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
         }
     }
     
@@ -153,14 +215,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     lastUpdate: getCurrentDateTime()
                 };
                 
-                // Salva il nuovo stato
+                // Salva il nuovo stato localmente
                 localStorage.setItem('offerbot_status', JSON.stringify(newStatus));
                 
-                // Aggiorna la cronologia
-                updateStatusHistory(newStatus);
-                
-                // Aggiorna la visualizzazione
-                loadCurrentStatus();
+                // Invia i dati al server
+                updateServerData(newStatus);
                 
                 // Resetta il form
                 statusMessage.value = '';
@@ -173,29 +232,58 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Aggiorna la cronologia degli stati
-    function updateStatusHistory(newStatus) {
-        const savedHistory = localStorage.getItem('offerbot_status_history');
-        let history = [];
+    // Aggiorna i dati sul server
+    function updateServerData(newStatus) {
+        // Prima otteniamo i dati attuali
+        fetch('status-data.json')
+            .then(response => response.json())
+            .then(data => {
+                // Aggiorna lo stato corrente
+                data.currentStatus = newStatus;
+                
+                // Aggiorna la cronologia
+                data.history.unshift({
+                    status: newStatus.status,
+                    date: getCurrentDateTime(),
+                    message: newStatus.message
+                });
+                
+                // Limita la cronologia a 10 elementi
+                if (data.history.length > 10) {
+                    data.history = data.history.slice(0, 10);
+                }
+                
+                // Salva i dati aggiornati
+                saveDataToServer(data);
+            })
+            .catch(error => {
+                console.error('Errore nel caricamento dei dati:', error);
+                // Crea un nuovo oggetto dati se non è possibile caricare quello esistente
+                const newData = {
+                    currentStatus: newStatus,
+                    history: [{
+                        status: newStatus.status,
+                        date: getCurrentDateTime(),
+                        message: newStatus.message
+                    }],
+                    stats: {
+                        offersToday: localStorage.getItem('offerbot_offers_count') || '0',
+                        uptime: localStorage.getItem('offerbot_uptime') || '99.8%'
+                    }
+                };
+                saveDataToServer(newData);
+            });
+    }
+    
+    // Salva i dati sul server
+    function saveDataToServer(data) {
+        // In un ambiente reale, qui useresti una chiamata AJAX o fetch per inviare i dati al server
+        // Per questa demo, simuliamo il salvataggio mostrando un messaggio
+        console.log('Dati da salvare sul server:', data);
+        alert('I dati sono stati aggiornati. In un ambiente reale, questi dati sarebbero salvati sul server.');
         
-        if (savedHistory) {
-            history = JSON.parse(savedHistory);
-        }
-        
-        // Aggiungi il nuovo stato all'inizio della cronologia
-        history.unshift({
-            status: newStatus.status,
-            date: getCurrentDateTime(),
-            message: newStatus.message
-        });
-        
-        // Limita la cronologia a 10 elementi
-        if (history.length > 10) {
-            history = history.slice(0, 10);
-        }
-        
-        // Salva la cronologia aggiornata
-        localStorage.setItem('offerbot_status_history', JSON.stringify(history));
+        // Aggiorna la visualizzazione
+        loadCurrentStatus();
     }
     
     // Ottieni la data e l'ora corrente formattate
@@ -208,6 +296,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Carica lo stato all'avvio
     loadCurrentStatus();
     
-    // Imposta un intervallo per controllare gli aggiornamenti ogni 5 secondi
-    setInterval(loadCurrentStatus, 5000);
+    // Imposta un intervallo per controllare gli aggiornamenti ogni 30 secondi
+    setInterval(loadCurrentStatus, 30000);
 });

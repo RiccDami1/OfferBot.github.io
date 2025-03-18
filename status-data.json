@@ -1,0 +1,28 @@
+{
+  "currentStatus": {
+    "status": "online",
+    "message": "Il bot è completamente operativo e sta cercando nuove offerte.",
+    "lastUpdate": "Oggi, 15:30"
+  },
+  "history": [
+    {
+      "status": "online",
+      "date": "Oggi, 15:30",
+      "message": "Il bot è completamente operativo e sta cercando nuove offerte."
+    },
+    {
+      "status": "maintenance",
+      "date": "Ieri, 22:15",
+      "message": "Manutenzione programmata per aggiornamenti del sistema."
+    },
+    {
+      "status": "online",
+      "date": "Ieri, 18:00",
+      "message": "Risolti tutti i problemi, il bot è tornato online."
+    }
+  ],
+  "stats": {
+    "offersToday": "42",
+    "uptime": "99.8%"
+  }
+}
