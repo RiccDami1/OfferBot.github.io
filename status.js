@@ -1,185 +1,193 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Elementi DOM
-    const adminLoginBtn = document.getElementById('admin-login-btn');
-    const adminPanel = document.getElementById('admin-panel');
-    const updateStatusBtn = document.getElementById('update-status');
-    const statusSelect = document.getElementById('status-select');
-    const statusMessage = document.getElementById('status-message');
-    const adminPassword = document.getElementById('admin-password');
+    // Elementi della pagina di stato
     const statusIndicator = document.getElementById('status-indicator');
     const statusText = document.getElementById('status-text');
     const statusDescription = document.getElementById('status-description');
     const lastUpdate = document.getElementById('last-update');
+    const uptime = document.getElementById('uptime');
+    const offersToday = document.getElementById('offers-today');
     const historyList = document.getElementById('history-list');
-    const statusLogin = document.querySelector('.status-login');
+    const adminPanel = document.getElementById('admin-panel');
+    const adminLoginBtn = document.getElementById('admin-login-btn');
+    const updateStatusBtn = document.getElementById('update-status');
+    const statusSelect = document.getElementById('status-select');
+    const statusMessage = document.getElementById('status-message');
+    const adminPassword = document.getElementById('admin-password');
     
-    // Nascondi il pulsante di accesso amministratore all'inizio
-    statusLogin.style.display = 'none';
-    
-    // Password amministratore (in un'applicazione reale, questo dovrebbe essere gestito lato server)
-    const ADMIN_PASSWORD = 'admin123';
-    
-    // Dati di stato iniziali
-    let currentStatus = {
-        status: 'online',
-        message: 'Il bot è completamente operativo e sta cercando nuove offerte.',
-        timestamp: new Date().toISOString()
-    };
-    
-    // Sequenza segreta per mostrare il pulsante admin
-    let secretSequence = [];
-    const correctSequence = ['a', 'd', 'm', 'i', 'n'];
-    
-    // Aggiungi event listener per la sequenza segreta
-    document.addEventListener('keydown', function(e) {
-        // Aggiungi il tasto premuto alla sequenza
-        secretSequence.push(e.key.toLowerCase());
-        
-        // Mantieni solo gli ultimi 5 tasti premuti
-        if (secretSequence.length > 5) {
-            secretSequence.shift();
-        }
-        
-        // Controlla se la sequenza corrisponde
-        if (arraysEqual(secretSequence, correctSequence)) {
-            statusLogin.style.display = 'flex';
-        }
-    });
-    
-    function arraysEqual(a, b) {
-        if (a.length !== b.length) return false;
-        for (let i = 0; i < a.length; i++) {
-            if (a[i] !== b[i]) return false;
-        }
-        return true;
-    }
-    
-    // Carica lo stato dal localStorage se disponibile
-    loadStatus();
-    
-    // Carica la cronologia dal localStorage se disponibile
-    loadHistory();
-    
-    // Event Listeners
-    adminLoginBtn.addEventListener('click', toggleAdminPanel);
-    updateStatusBtn.addEventListener('click', updateStatus);
-    
-    // Funzioni
-    function toggleAdminPanel() {
-        if (adminPanel.style.display === 'block') {
-            adminPanel.style.display = 'none';
-            adminLoginBtn.textContent = 'Accesso Amministratore';
-        } else {
-            adminPanel.style.display = 'block';
-            adminLoginBtn.textContent = 'Nascondi Pannello';
-        }
-    }
-    
-    function updateStatus() {
-        // Verifica la password
-        if (adminPassword.value !== ADMIN_PASSWORD) {
-            alert('Password non valida!');
-            return;
-        }
-        
-        // Ottieni i valori dal form
-        const status = statusSelect.value;
-        const message = statusMessage.value.trim() || getDefaultMessage(status);
-        
-        // Aggiorna lo stato corrente
-        currentStatus = {
-            status: status,
-            message: message,
-            timestamp: new Date().toISOString()
-        };
-        
-        // Salva lo stato nel localStorage
-        saveStatus();
-        
-        // Aggiungi alla cronologia
-        addToHistory(currentStatus);
-        
-        // Aggiorna l'interfaccia
-        updateStatusUI();
-        
-        // Resetta il form
-        statusMessage.value = '';
-        adminPassword.value = '';
-        
-        alert('Stato aggiornato con successo!');
-    }
-    
-    function getDefaultMessage(status) {
-        switch(status) {
-            case 'online':
-                return 'Il bot è completamente operativo e sta cercando nuove offerte.';
-            case 'maintenance':
-                return 'Il bot è in manutenzione programmata. Torneremo presto online!';
-            case 'partial':
-                return 'Alcune funzionalità del bot potrebbero non essere disponibili al momento.';
-            case 'offline':
-                return 'Il bot è attualmente offline. Stiamo lavorando per ripristinare il servizio.';
-            default:
-                return 'Stato del bot sconosciuto.';
-        }
-    }
-    
-    function updateStatusUI() {
-        // Aggiorna l'indicatore di stato
-        statusIndicator.className = 'status-indicator ' + currentStatus.status;
-        
-        // Aggiorna il testo dello stato
-        switch(currentStatus.status) {
-            case 'online':
-                statusText.textContent = 'Online';
-                break;
-            case 'maintenance':
-                statusText.textContent = 'In Manutenzione';
-                break;
-            case 'partial':
-                statusText.textContent = 'Parzialmente Operativo';
-                break;
-            case 'offline':
-                statusText.textContent = 'Offline';
-                break;
-        }
-        
-        // Aggiorna il messaggio di stato
-        statusDescription.textContent = currentStatus.message;
-        
-        // Aggiorna l'ultimo aggiornamento
-        const date = new Date(currentStatus.timestamp);
-        lastUpdate.textContent = formatDate(date);
-    }
-    
-    function formatDate(date) {
-        const options = { 
-            day: 'numeric', 
-            month: 'long', 
-            hour: '2-digit', 
-            minute: '2-digit' 
-        };
-        return date.toLocaleDateString('it-IT', options);
-    }
-    
-    function saveStatus() {
-        localStorage.setItem('offerbot_status', JSON.stringify(currentStatus));
-    }
-    
-    function loadStatus() {
+    // Carica lo stato corrente
+    function loadCurrentStatus() {
         const savedStatus = localStorage.getItem('offerbot_status');
         if (savedStatus) {
-            currentStatus = JSON.parse(savedStatus);
-            updateStatusUI();
+            const currentStatus = JSON.parse(savedStatus);
+            
+            // Aggiorna l'indicatore di stato
+            statusIndicator.className = 'status-indicator ' + currentStatus.status;
+            
+            // Aggiorna il testo dello stato
+            switch(currentStatus.status) {
+                case 'online':
+                    statusText.textContent = 'Online';
+                    break;
+                case 'maintenance':
+                    statusText.textContent = 'In Manutenzione';
+                    break;
+                case 'partial':
+                    statusText.textContent = 'Parzialmente Operativo';
+                    break;
+                case 'offline':
+                    statusText.textContent = 'Offline';
+                    break;
+            }
+            
+            // Aggiorna il messaggio di stato
+            statusDescription.textContent = currentStatus.message;
+            
+            // Aggiorna l'ultimo aggiornamento
+            lastUpdate.textContent = currentStatus.lastUpdate || 'Oggi, 15:30';
+        }
+        
+        // Carica il conteggio delle offerte
+        const savedCount = localStorage.getItem('offerbot_offers_count') || '0';
+        if (offersToday) {
+            offersToday.textContent = savedCount;
+        }
+        
+        // Carica l'uptime
+        const savedUptime = localStorage.getItem('offerbot_uptime') || '99.8%';
+        if (uptime) {
+            uptime.textContent = savedUptime;
+        }
+        
+        // Carica la cronologia
+        loadStatusHistory();
+    }
+    
+    // Carica la cronologia degli stati
+    function loadStatusHistory() {
+        if (!historyList) return;
+        
+        const savedHistory = localStorage.getItem('offerbot_status_history');
+        if (savedHistory) {
+            const history = JSON.parse(savedHistory);
+            
+            // Svuota la lista della cronologia
+            historyList.innerHTML = '';
+            
+            // Aggiungi ogni elemento della cronologia
+            history.forEach(item => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                historyItem.innerHTML = `
+                    <div class="history-status ${item.status}"></div>
+                    <div class="history-content">
+                        <div class="history-header">
+                            <div class="history-title">${getStatusText(item.status)}</div>
+                            <div class="history-date">${item.date}</div>
+                        </div>
+                        <div class="history-message">${item.message}</div>
+                    </div>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+        } else {
+            // Cronologia di default se non esiste
+            const defaultHistory = [
+                {
+                    status: 'online',
+                    date: 'Oggi, 15:30',
+                    message: 'Il bot è completamente operativo e sta cercando nuove offerte.'
+                },
+                {
+                    status: 'maintenance',
+                    date: 'Ieri, 22:15',
+                    message: 'Manutenzione programmata per aggiornamenti del sistema.'
+                },
+                {
+                    status: 'online',
+                    date: 'Ieri, 18:00',
+                    message: 'Risolti tutti i problemi, il bot è tornato online.'
+                }
+            ];
+            
+            localStorage.setItem('offerbot_status_history', JSON.stringify(defaultHistory));
+            loadStatusHistory();
         }
     }
     
-    function addToHistory(status) {
-        // Carica la cronologia esistente
-        let history = JSON.parse(localStorage.getItem('offerbot_history') || '[]');
+    // Ottieni il testo dello stato in base al codice
+    function getStatusText(status) {
+        switch(status) {
+            case 'online': return 'Online';
+            case 'maintenance': return 'In Manutenzione';
+            case 'partial': return 'Parzialmente Operativo';
+            case 'offline': return 'Offline';
+            default: return 'Sconosciuto';
+        }
+    }
+    
+    // Mostra/nascondi il pannello admin
+    if (adminLoginBtn) {
+        adminLoginBtn.addEventListener('click', function() {
+            if (adminPanel.style.display === 'block') {
+                adminPanel.style.display = 'none';
+                adminLoginBtn.textContent = 'Accesso Amministratore';
+            } else {
+                adminPanel.style.display = 'block';
+                adminLoginBtn.textContent = 'Nascondi Pannello';
+            }
+        });
+    }
+    
+    // Aggiorna lo stato
+    if (updateStatusBtn) {
+        updateStatusBtn.addEventListener('click', function() {
+            const password = adminPassword.value;
+            
+            // Password semplice per demo
+            if (password === 'admin123') {
+                const newStatus = {
+                    status: statusSelect.value,
+                    message: statusMessage.value,
+                    lastUpdate: getCurrentDateTime()
+                };
+                
+                // Salva il nuovo stato
+                localStorage.setItem('offerbot_status', JSON.stringify(newStatus));
+                
+                // Aggiorna la cronologia
+                updateStatusHistory(newStatus);
+                
+                // Aggiorna la visualizzazione
+                loadCurrentStatus();
+                
+                // Resetta il form
+                statusMessage.value = '';
+                adminPassword.value = '';
+                
+                alert('Stato aggiornato con successo!');
+            } else {
+                alert('Password non valida!');
+            }
+        });
+    }
+    
+    // Aggiorna la cronologia degli stati
+    function updateStatusHistory(newStatus) {
+        const savedHistory = localStorage.getItem('offerbot_status_history');
+        let history = [];
         
-        // Aggiungi il nuovo stato all'inizio dell'array
-        history.unshift(status);
+        if (savedHistory) {
+            history = JSON.parse(savedHistory);
+        }
+        
+        // Aggiungi il nuovo stato all'inizio della cronologia
+        history.unshift({
+            status: newStatus.status,
+            date: getCurrentDateTime(),
+            message: newStatus.message
+        });
         
         // Limita la cronologia a 10 elementi
         if (history.length > 10) {
@@ -187,135 +195,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Salva la cronologia aggiornata
-        localStorage.setItem('offerbot_history', JSON.stringify(history));
-        
-        // Aggiorna l'interfaccia della cronologia
-        renderHistory(history);
+        localStorage.setItem('offerbot_status_history', JSON.stringify(history));
     }
     
-    function loadHistory() {
-        const history = JSON.parse(localStorage.getItem('offerbot_history') || '[]');
-        renderHistory(history);
-    }
-    
-    function renderHistory(history) {
-        // Svuota la lista della cronologia
-        historyList.innerHTML = '';
-        
-        // Se non ci sono elementi nella cronologia
-        if (history.length === 0) {
-            historyList.innerHTML = '<div class="history-empty">Nessuna cronologia disponibile</div>';
-            return;
-        }
-        
-        // Aggiungi ogni elemento della cronologia alla lista
-        history.forEach(item => {
-            const date = new Date(item.timestamp);
-            
-            const historyItem = document.createElement('div');
-            historyItem.className = 'history-item';
-            
-            historyItem.innerHTML = `
-                <div class="history-status ${item.status}"></div>
-                <div class="history-content">
-                    <div class="history-header">
-                        <div class="history-title">${getStatusTitle(item.status)}</div>
-                        <div class="history-date">${formatDate(date)}</div>
-                    </div>
-                    <div class="history-message">${item.message}</div>
-                </div>
-            `;
-            
-            historyList.appendChild(historyItem);
-        });
-    }
-    
-    function getStatusTitle(status) {
-        switch(status) {
-            case 'online':
-                return 'Online';
-            case 'maintenance':
-                return 'In Manutenzione';
-            case 'partial':
-                return 'Parzialmente Operativo';
-            case 'offline':
-                return 'Offline';
-            default:
-                return 'Stato Sconosciuto';
-        }
-    }
-    
-    // Aggiorna i dati casuali ogni 30 secondi per simulare l'attività del bot
-    function updateRandomData() {
-        const uptime = document.getElementById('uptime');
-        
-        // Solo se il bot è online o parzialmente operativo
-        if (currentStatus.status === 'online' || currentStatus.status === 'partial') {
-            // Aggiorna l'uptime
-            const currentUptime = parseFloat(uptime.textContent);
-            let newUptime;
-            
-            if (currentStatus.status === 'online') {
-                newUptime = Math.min(99.9, currentUptime + (Math.random() * 0.1)).toFixed(1);
-            } else {
-                newUptime = Math.max(90.0, currentUptime - (Math.random() * 0.2)).toFixed(1);
-            }
-            
-            uptime.textContent = newUptime + '%';
-            
-            // Salva l'uptime nel localStorage per la home page
-            localStorage.setItem('offerbot_uptime', newUptime + '%');
-        }
-    }
-    
-    // Funzione per aggiornare le offerte trovate oggi
-    function updateOffersCount() {
-        const offersToday = document.getElementById('offers-today');
-        
-        // Controlla se è un nuovo giorno
+    // Ottieni la data e l'ora corrente formattate
+    function getCurrentDateTime() {
         const now = new Date();
-        const lastUpdateDate = localStorage.getItem('offerbot_last_update_date');
-        const today = now.toDateString();
-        
-        // Se è un nuovo giorno o non c'è un valore salvato, resetta il contatore
-        if (!lastUpdateDate || lastUpdateDate !== today) {
-            offersToday.textContent = '0';
-            localStorage.setItem('offerbot_offers_count', '0');
-            localStorage.setItem('offerbot_last_update_date', today);
-        } else {
-            // Altrimenti carica il valore salvato
-            const savedCount = localStorage.getItem('offerbot_offers_count') || '0';
-            offersToday.textContent = savedCount;
-        }
+        const options = { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' };
+        return now.toLocaleDateString('it-IT', options);
     }
     
-    // Funzione per incrementare le offerte trovate oggi
-    function incrementOffersCount() {
-        // Solo se il bot è online o parzialmente operativo
-        if (currentStatus.status === 'online' || currentStatus.status === 'partial') {
-            const offersToday = document.getElementById('offers-today');
-            const currentOffers = parseInt(offersToday.textContent);
-            const newOffers = currentOffers + 1;
-            
-            offersToday.textContent = newOffers;
-            localStorage.setItem('offerbot_offers_count', newOffers.toString());
-        }
-    }
+    // Carica lo stato all'avvio
+    loadCurrentStatus();
     
-    // Carica il conteggio delle offerte all'avvio
-    updateOffersCount();
-    
-    // Aggiorna i dati casuali ogni 30 secondi
-    setInterval(updateRandomData, 30000);
-    
-    // Incrementa le offerte ogni 12 minuti (720000 ms)
-    setInterval(incrementOffersCount, 720000);
-    
-    // Controlla ogni minuto se è mezzanotte per resettare il contatore
-    setInterval(function() {
-        const now = new Date();
-        if (now.getHours() === 0 && now.getMinutes() === 0) {
-            updateOffersCount(); // Questo resetterà il contatore a mezzanotte
-        }
-    }, 60000);
+    // Imposta un intervallo per controllare gli aggiornamenti ogni 5 secondi
+    setInterval(loadCurrentStatus, 5000);
 });

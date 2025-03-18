@@ -8,47 +8,56 @@ document.addEventListener('DOMContentLoaded', function() {
     const homeOffersToday = document.getElementById('home-offers-today');
     const homeUptime = document.getElementById('home-uptime');
     
-    if (homeStatusIndicator && homeStatusText && homeStatusDescription) {
-        // Carica lo stato dal localStorage
-        const savedStatus = localStorage.getItem('offerbot_status');
-        if (savedStatus) {
-            const currentStatus = JSON.parse(savedStatus);
-            
-            // Aggiorna l'indicatore di stato
-            homeStatusIndicator.className = 'status-badge ' + currentStatus.status;
-            
-            // Aggiorna il testo dello stato
-            switch(currentStatus.status) {
-                case 'online':
-                    homeStatusText.textContent = 'Online';
-                    break;
-                case 'maintenance':
-                    homeStatusText.textContent = 'In Manutenzione';
-                    break;
-                case 'partial':
-                    homeStatusText.textContent = 'Parzialmente Operativo';
-                    break;
-                case 'offline':
-                    homeStatusText.textContent = 'Offline';
-                    break;
+    // Funzione per aggiornare lo stato nella home page
+    function updateHomeStatus() {
+        if (homeStatusIndicator && homeStatusText && homeStatusDescription) {
+            // Carica lo stato dal localStorage
+            const savedStatus = localStorage.getItem('offerbot_status');
+            if (savedStatus) {
+                const currentStatus = JSON.parse(savedStatus);
+                
+                // Aggiorna l'indicatore di stato
+                homeStatusIndicator.className = 'status-badge ' + currentStatus.status;
+                
+                // Aggiorna il testo dello stato
+                switch(currentStatus.status) {
+                    case 'online':
+                        homeStatusText.textContent = 'Online';
+                        break;
+                    case 'maintenance':
+                        homeStatusText.textContent = 'In Manutenzione';
+                        break;
+                    case 'partial':
+                        homeStatusText.textContent = 'Parzialmente Operativo';
+                        break;
+                    case 'offline':
+                        homeStatusText.textContent = 'Offline';
+                        break;
+                }
+                
+                // Aggiorna il messaggio di stato
+                homeStatusDescription.textContent = currentStatus.message;
             }
             
-            // Aggiorna il messaggio di stato
-            homeStatusDescription.textContent = currentStatus.message;
-        }
-        
-        // Carica il conteggio delle offerte
-        const savedCount = localStorage.getItem('offerbot_offers_count') || '0';
-        if (homeOffersToday) {
-            homeOffersToday.textContent = savedCount;
-        }
-        
-        // Carica l'uptime
-        if (homeUptime) {
-            const savedUptime = localStorage.getItem('offerbot_uptime') || '99.8%';
-            homeUptime.textContent = savedUptime;
+            // Carica il conteggio delle offerte
+            const savedCount = localStorage.getItem('offerbot_offers_count') || '0';
+            if (homeOffersToday) {
+                homeOffersToday.textContent = savedCount;
+            }
+            
+            // Carica l'uptime
+            if (homeUptime) {
+                const savedUptime = localStorage.getItem('offerbot_uptime') || '99.8%';
+                homeUptime.textContent = savedUptime;
+            }
         }
     }
+    
+    // Esegui l'aggiornamento all'avvio
+    updateHomeStatus();
+    
+    // Imposta un intervallo per controllare gli aggiornamenti ogni 5 secondi
+    setInterval(updateHomeStatus, 5000);
 
     // Smooth scrolling for anchor links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
