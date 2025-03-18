@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OfferBot - Stato del Sistema</title>
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="footer.css">
+    <link rel="stylesheet" href="status-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="background-gradient"></div>
+    
+    <header>
+        <div class="container">
+            <div class="logo">
+                <img src="images/bot-logo.png" alt="OfferBot Logo">
+                <h1>OfferBot</h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="index.html#features">Funzionalità</a></li>
+                    <li><a href="index.html#how-it-works">Come Funziona</a></li>
+                    <li><a href="index.html#testimonials">Recensioni</a></li>
+                    <li><a href="status.html" class="active">Stato</a></li>
+                    <li><a href="index.html#join" class="cta-button">Unisciti Ora</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section class="status-section">
+        <div class="container">
+            <h1>Stato del Sistema</h1>
+            
+            <div class="status-card">
+                <div class="status-header">
+                    <h2>OfferBot</h2>
+                    <div id="status-indicator" class="status-indicator online">
+                        <span id="status-text">Online</span>
+                        <i class="fas fa-circle"></i>
+                    </div>
+                </div>
+                
+                <div class="status-details">
+                    <div class="status-item">
+                        <div class="status-label">Ultimo aggiornamento:</div>
+                        <div id="last-update" class="status-value">Oggi, 15:30</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Uptime:</div>
+                        <div id="uptime" class="status-value">99.8%</div>
+                    </div>
+                    <div class="status-item">
+                        <div class="status-label">Offerte trovate oggi:</div>
+                        <div id="offers-today" class="status-value">42</div>
+                    </div>
+                </div>
+                
+                <div class="status-message">
+                    <p id="status-description">Il bot è completamente operativo e sta cercando nuove offerte.</p>
+                </div>
+                
+                <!-- Form visibile solo agli amministratori -->
+                <div id="admin-panel" class="admin-panel">
+                    <h3>Pannello Amministratore</h3>
+                    <div class="admin-form">
+                        <div class="form-group">
+                            <label for="status-select">Cambia Stato:</label>
+                            <select id="status-select">
+                                <option value="online">Online</option>
+                                <option value="maintenance">In Manutenzione</option>
+                                <option value="partial">Parzialmente Operativo</option>
+                                <option value="offline">Offline</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status-message">Messaggio di Stato:</label>
+                            <textarea id="status-message" placeholder="Inserisci un messaggio di stato..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-password">Password:</label>
+                            <input type="password" id="admin-password" placeholder="Password amministratore">
+                        </div>
+                        <button id="update-status" class="primary-button">Aggiorna Stato</button>
+                    </div>
+                </div>
+                
+                <div class="status-login">
+                    <button id="admin-login-btn" class="secondary-button">Accesso Amministratore</button>
+                </div>
+            </div>
+            
+            <div class="status-history">
+                <h2>Cronologia Stati</h2>
+                <div class="history-list" id="history-list">
+                    <!-- La cronologia verrà popolata dinamicamente -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <img src="images/bot-logo.png" alt="OfferBot Logo">
+                    <h3>OfferBot</h3>
+                </div>
+                <div class="footer-links">
+                    <h4>Link Utili</h4>
+                    <ul>
+                        <li><a href="index.html#features">Funzionalità</a></li>
+                        <li><a href="index.html#how-it-works">Come Funziona</a></li>
+                        <li><a href="index.html#testimonials">Recensioni</a></li>
+                        <li><a href="index.html#join">Unisciti Ora</a></li>
+                    </ul>
+                </div>
+                <div class="footer-social">
+                    <h4>Seguici</h4>
+                    <div class="social-icons">
+                        <a href="#" target="_blank"><i class="fab fa-discord"></i></a>
+                        <a href="#" target="_blank"><i class="fab fa-tiktok"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2023 OfferBot. Tutti i diritti riservati.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="status.js"></script>
+</body>
+</html>

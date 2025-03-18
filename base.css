@@ -1,0 +1,257 @@
+:root {
+    --discord-primary: #00FF7F; /* Colore del logo */
+    --discord-secondary: #1DB954; /* Verde più scuro complementare */
+    --discord-dark: #36393F;
+    --discord-darker: #2F3136;
+    --discord-darkest: #202225;
+    --discord-light: #FFFFFF;
+    --discord-gray: #8E9297;
+    --discord-success: #00FF7F;
+    --discord-danger: #F04747;
+    --discord-warning: #FAA61A;
+    --gradient-primary: linear-gradient(135deg, var(--discord-primary), var(--discord-secondary));
+    --gradient-dark: linear-gradient(135deg, var(--discord-dark), var(--discord-darker));
+    --box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    --transition: all 0.3s ease;
+}
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--discord-light);
+    background-color: var(--discord-darkest);
+    overflow-x: hidden;
+    position: relative;
+}
+
+.background-gradient {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--discord-darkest);
+    z-index: -1;
+}
+
+.background-gradient::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(88, 101, 242, 0.1) 0%, rgba(32, 34, 37, 0) 70%);
+    animation: rotate 20s linear infinite;
+}
+
+.background-gradient::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(114, 137, 218, 0.1) 0%, rgba(32, 34, 37, 0) 70%);
+    animation: rotate 30s linear infinite reverse;
+}
+
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header Styles */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px 0;
+    background-color: rgba(32, 34, 37, 0.8);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    transition: var(--transition);
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo img {
+    height: 40px;
+    margin-right: 10px;
+}
+
+.logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--discord-light);
+}
+
+nav ul {
+    display: flex;
+    list-style: none;
+}
+
+nav ul li {
+    margin-left: 30px;
+}
+
+nav ul li a {
+    color: var(--discord-light);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    position: relative;
+}
+
+nav ul li a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--gradient-primary);
+    transition: var(--transition);
+}
+
+nav ul li a:hover::after {
+    width: 100%;
+}
+
+/* Button Styles */
+.cta-button {
+    background: var(--gradient-primary);
+    padding: 10px 20px;
+    border-radius: 50px;
+    color: var(--discord-light);
+    font-weight: 600;
+    transition: var(--transition);
+    box-shadow: var(--box-shadow);
+}
+
+.cta-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(88, 101, 242, 0.3);
+}
+
+.primary-button, .secondary-button {
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.primary-button {
+    background: var(--gradient-primary);
+    color: var(--discord-darkest);
+    box-shadow: 0 8px 20px rgba(0, 255, 127, 0.3);
+}
+
+.primary-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0, 255, 127, 0.4);
+}
+
+.secondary-button {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: var(--discord-light);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.secondary-button:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateY(-3px);
+}
+
+.primary-button i, .secondary-button i {
+    margin-left: 10px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--discord-darkest);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--discord-primary);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--discord-secondary);
+}
+
+/* Animation Classes */
+.floating {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+.fade-in {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.fade-in.appear {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(88, 101, 242, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(88, 101, 242, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(88, 101, 242, 0);
+    }
+}
